@@ -8,16 +8,16 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: 🧹 Extreme Space Cleanup (No Space Error Guarantee)
-        uses: easimon/maximize-build-space@master
+      - name: 🧹 Safe & Deep Space Cleanup
+        uses: jlumbroso/free-disk-space@main
         with:
-          root-reserve-mb: 8192
-          swap-size-mb: 8192
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false
 
       - name: ⚙️ Setup God Level Build Environment
         run: |
@@ -58,16 +58,23 @@ jobs:
           
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
-      - name: 🔥 Inject Max Performance & Security Flags
+      - name: 🗑️ ULTIMATE SPACE HACK (Delete .repo to save 40GB+)
         run: |
           cd ~/crdroid
-          # Injecting GApps and Play Integrity / Banking Fixes
+          echo "Dumping heavy hidden files to free up massive space..."
+          rm -rf .repo
+          sudo apt-get clean
+
+      - name: 🔥 Inject Max Performance & Build ROM
+        run: |
+          cd ~/crdroid
+          # Enabling GApps, F2FS and Disabling Cache for more space
           export WITH_GAPPS=true
           export TARGET_USE_F2FS=true
           export KBUILD_BUILD_USER="GodLevel"
           export KBUILD_BUILD_HOST="crDroid"
+          export CCACHE_DISABLE=1
           
-          # Initialize environment and start compilation
           source build/envsetup.sh
           lunch crdroid_sky-userdebug
           mka bacon
