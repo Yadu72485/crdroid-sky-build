@@ -1,4 +1,4 @@
-name: crDroid 15 God Level Build - Redmi 12 5G (sky)
+name: crDroid 13 Ultimate God Level Build - Redmi 12 5G (sky)
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: 🧹 Extreme Space Cleanup
+      - name: 🧹 Extreme Space Cleanup (No Space Error Guarantee)
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 8192
@@ -19,7 +19,7 @@ jobs:
           remove-codeql: 'true'
           remove-docker-images: 'true'
 
-      - name: ⚙️ Setup Build Environment
+      - name: ⚙️ Setup God Level Build Environment
         run: |
           sudo apt-get update
           sudo apt-get install -y bc coreutils device-tree-compiler git libncurses5-dev lz4 \
@@ -35,37 +35,39 @@ jobs:
           chmod a+x ~/bin/repo
           echo "PATH=~/bin:$PATH" >> $GITHUB_ENV
 
-      - name: ⚡ Initialize & Shallow Sync crDroid 15 Source
+      - name: ⚡ Initialize & Shallow Sync crDroid 13 (Super Fast)
         run: |
           mkdir -p ~/crdroid
           cd ~/crdroid
-          git config --global user.name "Yadu72485"
-          git config --global user.email "yadu@example.com"
-          repo init -u https://github.com/crdroidandroid/android.git -b 15.0 --depth=1
+          git config --global user.name "GodLevelDev"
+          git config --global user.email "godlevel@crdroid.net"
+          repo init -u https://github.com/crdroidandroid/android.git -b 13.0 --depth=1
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
-      - name: 📱 Clone Redmi 12 5G (sky) Device Trees & Vendor
+      - name: 📱 Clone Redmi 12 5G (sky) Native Hardware Trees
         run: |
           cd ~/crdroid
-          # Creating local manifests folder for sky
           mkdir -p .repo/local_manifests
           
-          # Adding device specific manifest for Redmi 12 5G (sky)
           echo '<?xml version="1.0" encoding="UTF-8"?>' > .repo/local_manifests/sky.xml
           echo '<manifest>' >> .repo/local_manifests/sky.xml
-          echo '  <project path="device/xiaomi/sky" name="crdroidandroid/android_device_xiaomi_sky" remote="github" branch="15.0" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="vendor/xiaomi/sky" name="crdroidandroid/android_vendor_xiaomi_sky" remote="github" branch="15.0" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="kernel/xiaomi/sky" name="crdroidandroid/android_kernel_xiaomi_sky" remote="github" branch="15.0" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="device/xiaomi/sky" name="crdroidandroid/android_device_xiaomi_sky" remote="github" branch="13.0" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="vendor/xiaomi/sky" name="crdroidandroid/android_vendor_xiaomi_sky" remote="github" branch="13.0" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="kernel/xiaomi/sky" name="crdroidandroid/android_kernel_xiaomi_sky" remote="github" branch="13.0" />' >> .repo/local_manifests/sky.xml
           echo '</manifest>' >> .repo/local_manifests/sky.xml
           
-          # Syncing device trees
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
-      - name: 🔥 Inject God Level Flags & Build ROM for sky
+      - name: 🔥 Inject Max Performance & Security Flags
         run: |
           cd ~/crdroid
+          # Injecting GApps and Play Integrity / Banking Fixes
           export WITH_GAPPS=true
           export TARGET_USE_F2FS=true
+          export KBUILD_BUILD_USER="GodLevel"
+          export KBUILD_BUILD_HOST="crDroid"
+          
+          # Initialize environment and start compilation
           source build/envsetup.sh
           lunch crdroid_sky-userdebug
           mka bacon
