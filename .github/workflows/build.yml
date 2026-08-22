@@ -56,7 +56,7 @@ jobs:
           git clone --depth 1 https://github.com/altafyafai7/android_kernel_xiaomi_sky_upstream.git kernel/xiaomi/sky
           git clone --depth 1 https://github.com/Evolution-X-Devices/vendor_xiaomi_sky.git vendor/xiaomi/sky
 
-      - name: 🎩 EXPLICIT Magic Cross-Port Script (Deep Clean 2.0)
+      - name: 🎩 EXPLICIT Magic Cross-Port Script (Deep Clean 3.0)
         run: |
           cd ~/crdroid/device/xiaomi/sky
           rm -f vendorsetup.sh || true
@@ -84,6 +84,9 @@ jobs:
           
           echo "NUKING the qcom-caf common.mk error permanently..."
           grep -rl 'hardware/qcom-caf/common/common.mk' . | xargs sed -i '/hardware\/qcom-caf\/common\/common.mk/d' || true
+          
+          echo "NUKING the Dolby error permanently..."
+          grep -rl 'hardware/dolby/dolby.mk' . | xargs sed -i '/hardware\/dolby\/dolby.mk/d' || true
 
       - name: 🗑️ ULTIMATE SPACE HACK
         run: |
