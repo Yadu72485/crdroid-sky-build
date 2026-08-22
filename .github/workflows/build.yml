@@ -49,15 +49,17 @@ jobs:
           cd ~/crdroid
           echo "Bypassing repo sync and force cloning trees..."
           
-          # Direct Git Clone (Yeh 100% guarantee ke sath download karega)
           git clone --depth 1 https://github.com/altafyafai7/android_device_xiaomi_sky.git device/xiaomi/sky
           git clone --depth 1 https://github.com/altafyafai7/android_kernel_xiaomi_sky_upstream.git kernel/xiaomi/sky
           git clone --depth 1 https://github.com/Evolution-X-Devices/vendor_xiaomi_sky.git vendor/xiaomi/sky
 
-      - name: 🎩 Magic Cross-Port Script (EvoX to crDroid)
+      - name: 🎩 Magic Cross-Port Script (Kill Rogue Scripts & Rename)
         run: |
           cd ~/crdroid/device/xiaomi/sky
           echo "Hacking EvoX files to trick crDroid..."
+          
+          # 💣 KILLING THE ROGUE SCRIPT THAT ASKED FOR PASSWORD
+          rm -f vendorsetup.sh
           
           # Renaming all possible makefiles to crdroid
           mv evolution_sky.mk crdroid_sky.mk || true
