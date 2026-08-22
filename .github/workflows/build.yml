@@ -65,7 +65,9 @@ jobs:
           
           echo "Injecting missing Xiaomi hardware namespace for our specific device..."
           rm -rf hardware/xiaomi || true
-          git clone --depth 1 https://github.com/LineageOS/android_hardware_xiaomi.git -b lineage-20.0 hardware/xiaomi
+          
+          # 🔥 HATA DIYA BRANCH KA NAAM! Ab yeh seedha download karega bina kisi error ke!
+          git clone --depth 1 https://github.com/LineageOS/android_hardware_xiaomi.git hardware/xiaomi
 
       - name: 🎩 EXPLICIT Magic Cross-Port Script (Blueprint Hack)
         run: |
