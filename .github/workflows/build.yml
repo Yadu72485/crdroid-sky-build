@@ -1,4 +1,4 @@
-name: crDroid 13 Ultimate God Level Build - Redmi 12 5G (sky)
+name: crDroid 13 God Level Cross-Port Build - Redmi 12 5G (sky)
 
 on:
   workflow_dispatch:
@@ -44,25 +44,45 @@ jobs:
           repo init -u https://github.com/crdroidandroid/android.git -b 13.0 --depth=1
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
-      - name: 📱 Clone Redmi 12 5G (sky) Official Hardware Trees
+      - name: 📱 Clone EvoX Hardware Trees for Cross-Porting
         run: |
           cd ~/crdroid
           mkdir -p .repo/local_manifests
           
-          # Fixed the 'revision' tag (Replaced 'branch' with 'revision')
           echo '<?xml version="1.0" encoding="UTF-8"?>' > .repo/local_manifests/sky.xml
           echo '<manifest>' >> .repo/local_manifests/sky.xml
-          echo '  <project path="device/xiaomi/sky" name="crdroidandroid/android_device_xiaomi_sky" remote="github" revision="13.0" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="vendor/xiaomi/sky" name="crdroidandroid/android_vendor_xiaomi_sky" remote="github" revision="13.0" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="kernel/xiaomi/sky" name="crdroidandroid/android_kernel_xiaomi_sky" remote="github" revision="13.0" />' >> .repo/local_manifests/sky.xml
+          
+          # Device Tree (EvoX)
+          echo '  <project path="device/xiaomi/sky" name="altafyafai7/android_device_xiaomi_sky" remote="github" />' >> .repo/local_manifests/sky.xml
+          
+          # Kernel Tree (Upstream)
+          echo '  <project path="kernel/xiaomi/sky" name="altafyafai7/android_kernel_xiaomi_sky_upstream" remote="github" revision="main" />' >> .repo/local_manifests/sky.xml
+          
+          # Vendor Tree (Evolution X) - THE MISSING PIECE FOUND BY YOU!
+          echo '  <project path="vendor/xiaomi/sky" name="Evolution-X-Devices/vendor_xiaomi_sky" remote="github" />' >> .repo/local_manifests/sky.xml
+          
           echo '</manifest>' >> .repo/local_manifests/sky.xml
           
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
-      - name: 🗑️ ULTIMATE SPACE HACK (Delete .repo to save 40GB+)
+      - name: 🎩 Magic Cross-Port Script (EvoX to crDroid)
+        run: |
+          cd ~/crdroid/device/xiaomi/sky
+          echo "Hacking EvoX files to trick crDroid..."
+          
+          # Renaming main makefile
+          mv evolution_sky.mk crdroid_sky.mk || true
+          mv evox_sky.mk crdroid_sky.mk || true
+          
+          # Replacing names inside files so system thinks it's crDroid
+          sed -i 's/evolution_/crdroid_/g' crdroid_sky.mk || true
+          sed -i 's/evox_/crdroid_/g' crdroid_sky.mk || true
+          sed -i 's/evolution_sky/crdroid_sky/g' AndroidProducts.mk || true
+          sed -i 's/evox_sky/crdroid_sky/g' AndroidProducts.mk || true
+
+      - name: 🗑️ ULTIMATE SPACE HACK
         run: |
           cd ~/crdroid
-          echo "Dumping heavy hidden files to free up massive space..."
           rm -rf .repo
           sudo apt-get clean
 
