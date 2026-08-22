@@ -1,4 +1,4 @@
-name: crDroid 13 God Level Cross-Port Build - Redmi 12 5G (sky)
+name: crDroid 13 God Level Expert Build - Redmi 12 5G (sky)
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
           docker-images: true
           swap-storage: false
 
-      - name: ⚙️ Setup God Level Build Environment
+      - name: ⚙️ Setup Build Environment
         run: |
           sudo apt-get update
           sudo apt-get install -y bc coreutils device-tree-compiler git libncurses5-dev lz4 \
@@ -35,53 +35,47 @@ jobs:
           chmod a+x ~/bin/repo
           echo "PATH=~/bin:$PATH" >> $GITHUB_ENV
 
-      - name: ⚡ Initialize & Shallow Sync crDroid 13 (Super Fast)
+      - name: ⚡ Initialize crDroid 13 Base
         run: |
           mkdir -p ~/crdroid
           cd ~/crdroid
           git config --global user.name "GodLevelDev"
           git config --global user.email "godlevel@crdroid.net"
           repo init -u https://github.com/crdroidandroid/android.git -b 13.0 --depth=1
-          repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
-      - name: 📱 FORCE CLONE EvoX Hardware Trees (Bypass Branch Error)
+      - name: 📱 Add Hardware Manifests (The Fix)
         run: |
           cd ~/crdroid
-          echo "Bypassing repo sync and force cloning trees..."
+          mkdir -p .repo/local_manifests
           
-          git clone --depth 1 https://github.com/altafyafai7/android_device_xiaomi_sky.git device/xiaomi/sky
-          git clone --depth 1 https://github.com/altafyafai7/android_kernel_xiaomi_sky_upstream.git kernel/xiaomi/sky
-          git clone --depth 1 https://github.com/Evolution-X-Devices/vendor_xiaomi_sky.git vendor/xiaomi/sky
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > .repo/local_manifests/sky.xml
+          echo '<manifest>' >> .repo/local_manifests/sky.xml
+          
+          # Adding Trees
+          echo '  <project path="device/xiaomi/sky" name="altafyafai7/android_device_xiaomi_sky" remote="github" revision="main" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="kernel/xiaomi/sky" name="altafyafai7/android_kernel_xiaomi_sky_upstream" remote="github" revision="main" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="vendor/xiaomi/sky" name="Evolution-X-Devices/vendor_xiaomi_sky" remote="github" revision="bka" />' >> .repo/local_manifests/sky.xml
+          
+          # Adding missing QCOM CAF common (The fix for your error)
+          echo '  <project path="hardware/qcom-caf/common" name="LineageOS/android_hardware_qcom-caf_common" remote="github" revision="lineage-20" />' >> .repo/local_manifests/sky.xml
+          
+          echo '</manifest>' >> .repo/local_manifests/sky.xml
 
-      - name: 🎩 Magic Cross-Port Script (Kill Rogue Scripts, Rename & Fix BoardConfig)
+      - name: 📥 Sync All Dependencies
+        run: |
+          cd ~/crdroid
+          repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
+
+      - name: 🎩 Magic Cross-Port Script
         run: |
           cd ~/crdroid/device/xiaomi/sky
-          echo "Hacking EvoX files to trick crDroid..."
-          
-          # 1. KILLING THE ROGUE SCRIPT THAT ASKED FOR PASSWORD
           rm -f vendorsetup.sh
-          
-          # 2. Renaming all possible makefiles to crdroid
-          mv evolution_sky.mk crdroid_sky.mk || true
-          mv evox_sky.mk crdroid_sky.mk || true
-          mv aosp_sky.mk crdroid_sky.mk || true
-          mv lineage_sky.mk crdroid_sky.mk || true
-          
-          # 3. Replacing texts inside files
-          sed -i 's/evolution_/crdroid_/g' crdroid_sky.mk || true
-          sed -i 's/evox_/crdroid_/g' crdroid_sky.mk || true
-          sed -i 's/aosp_/crdroid_/g' crdroid_sky.mk || true
-          sed -i 's/lineage_/crdroid_/g' crdroid_sky.mk || true
-          
-          sed -i 's/evolution_sky/crdroid_sky/g' AndroidProducts.mk || true
-          sed -i 's/evox_sky/crdroid_sky/g' AndroidProducts.mk || true
-          sed -i 's/aosp_sky/crdroid_sky/g' AndroidProducts.mk || true
-          sed -i 's/lineage_sky/crdroid_sky/g' AndroidProducts.mk || true
-
-          # 4. 🔧 FIXING THE BOARDCONFIG ERROR (Deleting the missing file request)
-          echo "Removing missing BoardConfigReservedSize reference..."
+          # Standardizing files
+          for f in evolution_*.mk evox_*.mk aosp_*.mk lineage_*.mk; do [ -f "$f" ] && mv "$f" "${f//evolution_/crdroid_}" && mv "$f" "${f//evox_/crdroid_}" && mv "$f" "${f//aosp_/crdroid_}" && mv "$f" "${f//lineage_/crdroid_}"; done || true
+          sed -i 's/evolution_/crdroid_/g' * || true
+          sed -i 's/evox_/crdroid_/g' * || true
+          sed -i 's/lineage_/crdroid_/g' * || true
           sed -i '/BoardConfigReservedSize/d' BoardConfig.mk || true
-          find . -type f -name "*.mk" -exec sed -i '/BoardConfigReservedSize/d' {} + || true
 
       - name: 🗑️ ULTIMATE SPACE HACK
         run: |
@@ -97,7 +91,6 @@ jobs:
           export KBUILD_BUILD_USER="GodLevel"
           export KBUILD_BUILD_HOST="crDroid"
           export CCACHE_DISABLE=1
-          
           source build/envsetup.sh
           lunch crdroid_sky-userdebug
           mka bacon
