@@ -43,47 +43,40 @@ jobs:
           git config --global user.email "godlevel@crdroid.net"
           repo init -u https://github.com/crdroidandroid/android.git -b 13.0 --depth=1
 
-      - name: 📱 Add Hardware Manifests (No Duplicates)
+      - name: 📥 Sync Base ROM (No Manifest Errors!)
         run: |
           cd ~/crdroid
-          mkdir -p .repo/local_manifests
-          
-          echo '<?xml version="1.0" encoding="UTF-8"?>' > .repo/local_manifests/sky.xml
-          echo '<manifest>' >> .repo/local_manifests/sky.xml
-          
-          # Adding Device, Kernel, and Vendor Trees ONLY
-          echo '  <project path="device/xiaomi/sky" name="altafyafai7/android_device_xiaomi_sky" remote="github" revision="main" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="kernel/xiaomi/sky" name="altafyafai7/android_kernel_xiaomi_sky_upstream" remote="github" revision="main" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="vendor/xiaomi/sky" name="Evolution-X-Devices/vendor_xiaomi_sky" remote="github" revision="bka" />' >> .repo/local_manifests/sky.xml
-          
-          echo '</manifest>' >> .repo/local_manifests/sky.xml
-
-      - name: 📥 Sync All Dependencies
-        run: |
-          cd ~/crdroid
+          # Normal sync bina kisi extra tree ke, taaki koi branch error na aaye
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
-      - name: 🛠️ Force Fix QCOM-CAF Common (The Ultimate Bypass)
+      - name: 📱 FORCE CLONE Hardware Trees (The Brahmastra)
         run: |
           cd ~/crdroid
-          echo "Deleting default crDroid qcom-caf common..."
-          rm -rf hardware/qcom-caf/common
-          echo "Force cloning correct qcom-caf common for our device tree..."
+          echo "Force cloning Device, Kernel, and Vendor directly..."
+          # Yeh bina branch puche default file download kar lega!
+          git clone --depth 1 https://github.com/altafyafai7/android_device_xiaomi_sky.git device/xiaomi/sky
+          git clone --depth 1 https://github.com/altafyafai7/android_kernel_xiaomi_sky_upstream.git kernel/xiaomi/sky
+          git clone --depth 1 https://github.com/Evolution-X-Devices/vendor_xiaomi_sky.git vendor/xiaomi/sky
+
+      - name: 🛠️ Force Fix QCOM-CAF Common
+        run: |
+          cd ~/crdroid
+          echo "Removing faulty qcom-caf and injecting the correct one..."
+          rm -rf hardware/qcom-caf/common || true
           git clone --depth 1 https://github.com/LineageOS/android_hardware_qcom-caf_common.git -b lineage-20.0 hardware/qcom-caf/common
 
       - name: 🎩 Magic Cross-Port Script
         run: |
           cd ~/crdroid/device/xiaomi/sky
-          rm -f vendorsetup.sh
+          rm -f vendorsetup.sh || true
           
-          # Converting all EvoX names to crDroid
+          # Converting names to crDroid
           for f in evolution_*.mk evox_*.mk aosp_*.mk lineage_*.mk; do [ -f "$f" ] && mv "$f" "${f//evolution_/crdroid_}" && mv "$f" "${f//evox_/crdroid_}" && mv "$f" "${f//aosp_/crdroid_}" && mv "$f" "${f//lineage_/crdroid_}"; done || true
           
           sed -i 's/evolution_/crdroid_/g' * || true
           sed -i 's/evox_/crdroid_/g' * || true
           sed -i 's/lineage_/crdroid_/g' * || true
           
-          # Fixing BoardConfig errors
           sed -i '/BoardConfigReservedSize/d' BoardConfig.mk || true
 
       - name: 🗑️ ULTIMATE SPACE HACK
