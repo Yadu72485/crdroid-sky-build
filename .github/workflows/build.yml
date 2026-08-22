@@ -44,16 +44,17 @@ jobs:
           repo init -u https://github.com/crdroidandroid/android.git -b 13.0 --depth=1
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
-      - name: 📱 Clone Redmi 12 5G (sky) Native Hardware Trees
+      - name: 📱 Clone Redmi 12 5G (sky) Official Hardware Trees
         run: |
           cd ~/crdroid
           mkdir -p .repo/local_manifests
           
+          # Fixed the 'revision' tag (Replaced 'branch' with 'revision')
           echo '<?xml version="1.0" encoding="UTF-8"?>' > .repo/local_manifests/sky.xml
           echo '<manifest>' >> .repo/local_manifests/sky.xml
-          echo '  <project path="device/xiaomi/sky" name="xiaomi-sm4450-devs/android_device_xiaomi_sky" remote="github" branch="13" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="vendor/xiaomi/sky" name="xiaomi-sm4450-devs/android_vendor_xiaomi_sky" remote="github" branch="13" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="kernel/xiaomi/sky" name="xiaomi-sm4450-devs/android_kernel_xiaomi_sky" remote="github" branch="13" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="device/xiaomi/sky" name="crdroidandroid/android_device_xiaomi_sky" remote="github" revision="13.0" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="vendor/xiaomi/sky" name="crdroidandroid/android_vendor_xiaomi_sky" remote="github" revision="13.0" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="kernel/xiaomi/sky" name="crdroidandroid/android_kernel_xiaomi_sky" remote="github" revision="13.0" />' >> .repo/local_manifests/sky.xml
           echo '</manifest>' >> .repo/local_manifests/sky.xml
           
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
