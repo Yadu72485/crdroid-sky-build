@@ -56,7 +56,18 @@ jobs:
           git clone --depth 1 https://github.com/altafyafai7/android_kernel_xiaomi_sky_upstream.git kernel/xiaomi/sky
           git clone --depth 1 https://github.com/Evolution-X-Devices/vendor_xiaomi_sky.git vendor/xiaomi/sky
 
-      - name: 🎩 EXPLICIT Magic Cross-Port Script (Blueprint Hack 5.0)
+      - name: 🛠️ Force Fix Missing Hardware Dependencies (QCOM & Xiaomi)
+        run: |
+          cd ~/crdroid
+          echo "Removing faulty qcom-caf and injecting the correct one..."
+          rm -rf hardware/qcom-caf/common || true
+          git clone --depth 1 https://github.com/LineageOS/android_hardware_qcom-caf_common.git -b lineage-20.0 hardware/qcom-caf/common
+          
+          echo "Injecting missing Xiaomi hardware namespace for our specific device..."
+          rm -rf hardware/xiaomi || true
+          git clone --depth 1 https://github.com/LineageOS/android_hardware_xiaomi.git -b lineage-20.0 hardware/xiaomi
+
+      - name: 🎩 EXPLICIT Magic Cross-Port Script (Blueprint Hack)
         run: |
           cd ~/crdroid/device/xiaomi/sky
           rm -f vendorsetup.sh || true
