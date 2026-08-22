@@ -51,9 +51,9 @@ jobs:
           
           echo '<?xml version="1.0" encoding="UTF-8"?>' > .repo/local_manifests/sky.xml
           echo '<manifest>' >> .repo/local_manifests/sky.xml
-          echo '  <project path="device/xiaomi/sky" name="crdroidandroid/android_device_xiaomi_sky" remote="github" branch="13.0" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="vendor/xiaomi/sky" name="crdroidandroid/android_vendor_xiaomi_sky" remote="github" branch="13.0" />' >> .repo/local_manifests/sky.xml
-          echo '  <project path="kernel/xiaomi/sky" name="crdroidandroid/android_kernel_xiaomi_sky" remote="github" branch="13.0" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="device/xiaomi/sky" name="xiaomi-sm4450-devs/android_device_xiaomi_sky" remote="github" branch="13" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="vendor/xiaomi/sky" name="xiaomi-sm4450-devs/android_vendor_xiaomi_sky" remote="github" branch="13" />' >> .repo/local_manifests/sky.xml
+          echo '  <project path="kernel/xiaomi/sky" name="xiaomi-sm4450-devs/android_kernel_xiaomi_sky" remote="github" branch="13" />' >> .repo/local_manifests/sky.xml
           echo '</manifest>' >> .repo/local_manifests/sky.xml
           
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
@@ -68,7 +68,6 @@ jobs:
       - name: 🔥 Inject Max Performance & Build ROM
         run: |
           cd ~/crdroid
-          # Enabling GApps, F2FS and Disabling Cache for more space
           export WITH_GAPPS=true
           export TARGET_USE_F2FS=true
           export KBUILD_BUILD_USER="GodLevel"
