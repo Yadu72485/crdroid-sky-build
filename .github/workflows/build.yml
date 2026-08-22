@@ -46,14 +46,12 @@ jobs:
       - name: 📥 Sync Base ROM (No Manifest Errors!)
         run: |
           cd ~/crdroid
-          # Normal sync bina kisi extra tree ke, taaki koi branch error na aaye
           repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j$(nproc --all)
 
       - name: 📱 FORCE CLONE Hardware Trees (The Brahmastra)
         run: |
           cd ~/crdroid
           echo "Force cloning Device, Kernel, and Vendor directly..."
-          # Yeh bina branch puche default file download kar lega!
           git clone --depth 1 https://github.com/altafyafai7/android_device_xiaomi_sky.git device/xiaomi/sky
           git clone --depth 1 https://github.com/altafyafai7/android_kernel_xiaomi_sky_upstream.git kernel/xiaomi/sky
           git clone --depth 1 https://github.com/Evolution-X-Devices/vendor_xiaomi_sky.git vendor/xiaomi/sky
@@ -65,18 +63,30 @@ jobs:
           rm -rf hardware/qcom-caf/common || true
           git clone --depth 1 https://github.com/LineageOS/android_hardware_qcom-caf_common.git -b lineage-20.0 hardware/qcom-caf/common
 
-      - name: 🎩 Magic Cross-Port Script
+      - name: 🎩 EXPLICIT Magic Cross-Port Script (Bulletproof Rename)
         run: |
           cd ~/crdroid/device/xiaomi/sky
           rm -f vendorsetup.sh || true
           
-          # Converting names to crDroid
-          for f in evolution_*.mk evox_*.mk aosp_*.mk lineage_*.mk; do [ -f "$f" ] && mv "$f" "${f//evolution_/crdroid_}" && mv "$f" "${f//evox_/crdroid_}" && mv "$f" "${f//aosp_/crdroid_}" && mv "$f" "${f//lineage_/crdroid_}"; done || true
+          echo "Renaming main makefiles explicitly..."
+          mv aosp_sky.mk crdroid_sky.mk || true
+          mv lineage_sky.mk crdroid_sky.mk || true
+          mv evolution_sky.mk crdroid_sky.mk || true
+          mv evox_sky.mk crdroid_sky.mk || true
           
-          sed -i 's/evolution_/crdroid_/g' * || true
-          sed -i 's/evox_/crdroid_/g' * || true
-          sed -i 's/lineage_/crdroid_/g' * || true
+          echo "Updating AndroidProducts.mk references..."
+          sed -i 's/aosp_sky/crdroid_sky/g' AndroidProducts.mk || true
+          sed -i 's/lineage_sky/crdroid_sky/g' AndroidProducts.mk || true
+          sed -i 's/evolution_sky/crdroid_sky/g' AndroidProducts.mk || true
+          sed -i 's/evox_sky/crdroid_sky/g' AndroidProducts.mk || true
           
+          echo "Updating internal variables in crdroid_sky.mk..."
+          sed -i 's/aosp_/crdroid_/g' crdroid_sky.mk || true
+          sed -i 's/lineage_/crdroid_/g' crdroid_sky.mk || true
+          sed -i 's/evolution_/crdroid_/g' crdroid_sky.mk || true
+          sed -i 's/evox_/crdroid_/g' crdroid_sky.mk || true
+          
+          echo "Removing BoardConfig errors..."
           sed -i '/BoardConfigReservedSize/d' BoardConfig.mk || true
 
       - name: 🗑️ ULTIMATE SPACE HACK
