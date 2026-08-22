@@ -63,7 +63,7 @@ jobs:
           rm -rf hardware/qcom-caf/common || true
           git clone --depth 1 https://github.com/LineageOS/android_hardware_qcom-caf_common.git -b lineage-20.0 hardware/qcom-caf/common
 
-      - name: 🎩 EXPLICIT Magic Cross-Port Script (Bulletproof Rename)
+      - name: 🎩 EXPLICIT Magic Cross-Port Script (Deep Clean)
         run: |
           cd ~/crdroid/device/xiaomi/sky
           rm -f vendorsetup.sh || true
@@ -86,8 +86,8 @@ jobs:
           sed -i 's/evolution_/crdroid_/g' crdroid_sky.mk || true
           sed -i 's/evox_/crdroid_/g' crdroid_sky.mk || true
           
-          echo "Removing BoardConfig errors..."
-          sed -i '/BoardConfigReservedSize/d' BoardConfig.mk || true
+          echo "NUKING BoardConfig errors from ALL files..."
+          grep -rl 'BoardConfigReservedSize' . | xargs sed -i '/BoardConfigReservedSize/d' || true
 
       - name: 🗑️ ULTIMATE SPACE HACK
         run: |
