@@ -53,21 +53,21 @@ jobs:
           git clone --depth 1 https://github.com/altafyafai7/android_kernel_xiaomi_sky_upstream.git kernel/xiaomi/sky
           git clone --depth 1 https://github.com/Evolution-X-Devices/vendor_xiaomi_sky.git vendor/xiaomi/sky
 
-      - name: 🎩 Magic Cross-Port Script (Kill Rogue Scripts & Rename)
+      - name: 🎩 Magic Cross-Port Script (Kill Rogue Scripts, Rename & Fix BoardConfig)
         run: |
           cd ~/crdroid/device/xiaomi/sky
           echo "Hacking EvoX files to trick crDroid..."
           
-          # 💣 KILLING THE ROGUE SCRIPT THAT ASKED FOR PASSWORD
+          # 1. KILLING THE ROGUE SCRIPT THAT ASKED FOR PASSWORD
           rm -f vendorsetup.sh
           
-          # Renaming all possible makefiles to crdroid
+          # 2. Renaming all possible makefiles to crdroid
           mv evolution_sky.mk crdroid_sky.mk || true
           mv evox_sky.mk crdroid_sky.mk || true
           mv aosp_sky.mk crdroid_sky.mk || true
           mv lineage_sky.mk crdroid_sky.mk || true
           
-          # Replacing texts inside files
+          # 3. Replacing texts inside files
           sed -i 's/evolution_/crdroid_/g' crdroid_sky.mk || true
           sed -i 's/evox_/crdroid_/g' crdroid_sky.mk || true
           sed -i 's/aosp_/crdroid_/g' crdroid_sky.mk || true
@@ -77,6 +77,11 @@ jobs:
           sed -i 's/evox_sky/crdroid_sky/g' AndroidProducts.mk || true
           sed -i 's/aosp_sky/crdroid_sky/g' AndroidProducts.mk || true
           sed -i 's/lineage_sky/crdroid_sky/g' AndroidProducts.mk || true
+
+          # 4. 🔧 FIXING THE BOARDCONFIG ERROR (Deleting the missing file request)
+          echo "Removing missing BoardConfigReservedSize reference..."
+          sed -i '/BoardConfigReservedSize/d' BoardConfig.mk || true
+          find . -type f -name "*.mk" -exec sed -i '/BoardConfigReservedSize/d' {} + || true
 
       - name: 🗑️ ULTIMATE SPACE HACK
         run: |
